@@ -1,9 +1,8 @@
-name: Deploy Backend to Ubuntu
+name: Deploy Backend
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
 
 jobs:
   deploy:
@@ -13,7 +12,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: SSH into Ubuntu Server and Deploy
+      - name: SSH and deploy
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SERVER_IP }}
@@ -23,4 +22,4 @@ jobs:
             cd /home/${{ secrets.SERVER_USER }}/my-backend
             git pull
             sudo systemctl restart mybackend
-            echo "Deployment completed!"
+
