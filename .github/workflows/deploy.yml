@@ -12,18 +12,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Create SSH key file
+      - name: Setup SSH Key
         run: |
-          echo "${{ secrets.SERVER_SSH_KEY }}" | base64 -d > mykey.pem
-          chmod 600 mykey.pem
+          echo "${{ secrets.SERVER_SSH_KEY }}" | base64 --decode > ec2-key.pem
+          chmod 600 ec2-key.pem
 
       - name: Deploy to EC2
         run: |
-          ssh -o StrictHostKeyChecking=no -i mykey.pem ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
-            cd /home/${{ secrets.SERVER_USER }}/my-backend &&
+          ssh -o StrictHostKeyChecking=no -i ec2-key.pem ec2-user@${{ secrets.SERVER_IP }} "
+            cd /home/ec2-user/my-backend &&
             git pull &&
-            docker stop mybackend || true &&
-            docker rm mybackend || true &&
-            docker pull yaseenshaik23/my-backend:1.0 &&
-            docker run -d -p 3000:3000 --name mybackend yaseenshaik23/my-backend:1.0
+            sudo docker stop my-backend || true &&
+            sudo docker rm my-backend || true &&
+            sudo docker build -t my-backend:latest . &&
+            sudo docker run -d -p 3000:3000 --name my-backend my-backend:latest
           "
